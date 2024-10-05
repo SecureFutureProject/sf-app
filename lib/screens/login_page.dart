@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
-                          labelText: 'Username',
+                          labelText: 'Email',
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        validator: (value) => value!.isEmpty ? 'Enter a username' : null,
+                        validator: (value) => value!.isEmpty ? 'Enter an email' : null,
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
@@ -88,16 +88,15 @@ class _LoginPageState extends State<LoginPage> {
                           const Spacer(),
                           TextButton(
                             child: const Text('Forgot password?'),
-                            onPressed: () {
-                              // TODO: Implement forgot password functionality
-                            },
+                            onPressed: _resetPassword,
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.purple,
+                          backgroundColor: Colors.purple,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -134,9 +133,26 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not sign in')),
         );
-      } else {
-        Navigator.pushReplacementNamed(context, '/home');
       }
+    }
+  }
+
+  void _resetPassword() async {
+    if (_emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email')),
+      );
+      return;
+    }
+    try {
+      await _auth.resetPassword(_emailController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send password reset email')),
+      );
     }
   }
 }
