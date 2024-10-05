@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../models/user_model.dart';
+import '../../services/auth_service.dart';
+import '../../models/user_model.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -225,3 +225,5 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 }
+
+
