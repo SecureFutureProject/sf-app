@@ -33,14 +33,23 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(title: const Text('Create Account')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (userType == null)
-              _buildUserTypeSelection()
-            else
-              _buildRegistrationForm(),
-          ],
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (userType == null)
+                  _buildUserTypeSelection()
+                else
+                  _buildRegistrationForm(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -49,7 +58,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildUserTypeSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
           'Are you a Brand or an Influencer?',
@@ -57,18 +65,20 @@ class _RegisterPageState extends State<RegisterPage> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
-        ElevatedButton(
-          child: const Text('I am a Brand', style: TextStyle(fontSize: 20)),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.business),
+          label: const Text('I am a Brand', style: TextStyle(fontSize: 18)),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
           onPressed: () => setState(() => userType = 'Brand'),
         ),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          child: const Text('I am an Influencer', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.person),
+          label: const Text('I am an Influencer', style: TextStyle(fontSize: 18)),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
           onPressed: () => setState(() => userType = 'Influencer'),
         ),
@@ -80,42 +90,63 @@ class _RegisterPageState extends State<RegisterPage> {
     return Form(
       key: _formKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
             controller: _nameController,
-            decoration: InputDecoration(labelText: userType == 'Brand' ? 'Brand Name' : 'Full Name'),
+            decoration: InputDecoration(
+              labelText: userType == 'Brand' ? 'Brand Name' : 'Full Name',
+              prefixIcon: const Icon(Icons.person),
+            ),
             validator: (value) => value!.isEmpty ? 'This field is required' : null,
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _emailController,
-            decoration: const InputDecoration(labelText: 'Email'),
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              prefixIcon: Icon(Icons.email),
+            ),
             validator: (value) => value!.isEmpty ? 'Enter an email' : null,
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _passwordController,
-            decoration: const InputDecoration(labelText: 'Password'),
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              prefixIcon: Icon(Icons.lock),
+            ),
             obscureText: true,
             validator: (value) => value!.length < 6 ? 'Enter a password 6+ chars long' : null,
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _locationController,
-            decoration: const InputDecoration(labelText: 'Location'),
+            decoration: const InputDecoration(
+              labelText: 'Location',
+              prefixIcon: Icon(Icons.location_on),
+            ),
             validator: (value) => value!.isEmpty ? 'Enter your location' : null,
           ),
+          const SizedBox(height: 16),
           TextFormField(
             controller: _phoneController,
-            decoration: const InputDecoration(labelText: 'Phone (optional)'),
+            decoration: const InputDecoration(
+              labelText: 'Phone (optional)',
+              prefixIcon: Icon(Icons.phone),
+            ),
             keyboardType: TextInputType.phone,
           ),
           if (userType == 'Influencer') ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             const Text('Select your niches:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8.0,
+              runSpacing: 8.0,
               children: niches.map((String niche) {
                 return FilterChip(
-                  avatar: Icon(getIconForNiche(niche)),
+                  avatar: Icon(_getIconForNiche(niche)),
                   label: Text(niche),
                   selected: selectedNiches.contains(niche),
                   onSelected: (bool selected) {
@@ -131,9 +162,12 @@ class _RegisterPageState extends State<RegisterPage> {
               }).toList(),
             ),
           ],
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           ElevatedButton(
-            child: const Text('Register'),
+            child: const Text('Register', style: TextStyle(fontSize: 18)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
             onPressed: () async {
               if (_formKey.currentState!.validate() && (userType == 'Brand' || selectedNiches.isNotEmpty)) {
                 UserModel user = UserModel(
@@ -164,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  IconData getIconForNiche(String niche) {
+  IconData _getIconForNiche(String niche) {
     switch (niche) {
       case 'Fashion':
         return Icons.style;
