@@ -1,6 +1,6 @@
-# sf_app
+# ||| Secure Futures |||
 
-A new Flutter project.
+This app connects brands with influencers to help with sponsorships.
 
 ## Getting Started
 
