@@ -126,6 +126,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               hintText: 'Email address',
               onChanged: (val) => setState(() => _email = val),
               validator: (val) => val!.isEmpty ? 'Enter an email' : null,
+              onFieldSubmitted: (_) => _login(),
             ),
             SizedBox(height: 15),
             _buildAnimatedTextField(
@@ -133,6 +134,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               obscureText: true,
               onChanged: (val) => setState(() => _password = val),
               validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+              onFieldSubmitted: (_) => _login(),
             ),
             SizedBox(height: 20),
             _buildLoginButton(),
@@ -187,6 +189,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     bool obscureText = false,
     required Function(String) onChanged,
     required String? Function(String?) validator,
+    required Function(String) onFieldSubmitted,
   }) {
     return AnimatedBuilder(
       animation: _animation,
@@ -209,6 +212,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               obscureText: obscureText,
               onChanged: onChanged,
               validator: validator,
+              onFieldSubmitted: onFieldSubmitted,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -228,16 +232,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           borderRadius: BorderRadius.circular(30),
         ),
       ),
-      onPressed: () async {
-        if (_formKey.currentState!.validate()) {
-          dynamic result = await _auth.signIn(_email, _password);
-          if (result == null) {
-            setState(() => _error = 'Could not sign in with those credentials');
-          } else {
-            Navigator.pushReplacementNamed(context, '/home');
-          }
-        }
-      },
+      onPressed: _login,
     );
   }
 
@@ -269,5 +264,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         Navigator.pushNamed(context, '/register');
       },
     );
+  }
+
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      dynamic result = await _auth.signIn(_email, _password);
+      if (result == null) {
+        setState(() => _error = 'Could not sign in with those credentials');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    }
   }
 }
