@@ -13,6 +13,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final AuthService _auth = AuthService();
+  final ScrollController _scrollController = ScrollController();
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -47,7 +48,16 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   @override
   void dispose() {
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToRegistrationForm() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -69,10 +79,12 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               children: [
                 _buildHeader(),
                 SizedBox(height: 32),
+                _buildUserTypeSelection(),
+                SizedBox(height: 32),
                 AnimatedSwitcher(
                   duration: Duration(milliseconds: 500),
                   child: userType == null
-                      ? _buildUserTypeSelection()
+                      ? SizedBox.shrink()
                       : _buildRegistrationForm(),
                 ),
               ],
@@ -123,9 +135,13 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 24),
-        _buildUserTypeButton('Brand', Icons.business),
-        SizedBox(height: 16),
-        _buildUserTypeButton('Influencer', Icons.person),
+        Row(
+          children: [
+            Expanded(child: _buildUserTypeButton('Brand', Icons.business)),
+            SizedBox(width: 16),
+            Expanded(child: _buildUserTypeButton('Influencer', Icons.person)),
+          ],
+        ),
       ],
     );
   }
@@ -144,6 +160,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       onPressed: () {
         setState(() => userType = type);
         _animationController.forward();
+        _scrollToRegistrationForm();
       },
     );
   }
