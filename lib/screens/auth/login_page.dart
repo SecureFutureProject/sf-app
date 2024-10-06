@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import '../../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,269 +9,261 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final AuthService _auth = AuthService();
-  bool _rememberMe = false;
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
+  String _error = '';
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background image
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/desert_background.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.blue.shade200, Colors.purple.shade200],
           ),
-          // Login form
-          Center(
-            child: Card(
-              margin: const EdgeInsets.all(20),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Login',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) => value!.isEmpty ? 'Enter an email' : null,
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        obscureText: true,
-                        validator: (value) => value!.length < 6 ? 'Enter a password 6+ chars long' : null,
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value!;
-                              });
-                            },
-                          ),
-                          const Text('Remember me'),
-                          const Spacer(),
-                          TextButton(
-                            child: const Text('Forgot password?'),
-                            onPressed: _resetPassword,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
-                        child: const Text('Login', style: TextStyle(fontSize: 18)),
-                        onPressed: _attemptLogin,
-                      ),
-                      const SizedBox(height: 10),
-                      TextButton(
-                        child: const Text('Create Account'),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/register');
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: _buildLeftSide(),
             ),
-          ),
-        ],
+            Expanded(
+              flex: 2,
+              child: _buildRightSide(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _attemptLogin() async {
-    if (_formKey.currentState!.validate()) {
-      dynamic result = await _auth.signIn(
-        _emailController.text,
-        _passwordController.text,
-      );
-      if (result == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not sign in')),
-        );
-      }
-    }
+  Widget _buildLeftSide() {
+    return Container(
+      color: Colors.white.withOpacity(0.8),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FadeTransition(
+              opacity: _animation,
+              child: ScaleTransition(
+                scale: _animation,
+                child: Text(
+                  'COMING\nSOON',
+                  style: TextStyle(
+                    fontSize: 72,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFF6B6B),
+                    height: 0.9,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            DefaultTextStyle(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.black87,
+              ),
+              child: AnimatedTextKit(
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    'NEW ERA OF INFLUENCER MARKETING',
+                    speed: Duration(milliseconds: 100),
+                  ),
+                ],
+                totalRepeatCount: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _resetPassword() async {
-    if (_emailController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email')),
-      );
-      return;
-    }
-    try {
-      await _auth.resetPassword(_emailController.text);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send password reset email')),
-      );
-    }
+  Widget _buildRightSide() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40),
+      color: Colors.white.withOpacity(0.9),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildAnimatedTitle(),
+            SizedBox(height: 30),
+            _buildAnimatedTextField(
+              hintText: 'Email address',
+              onChanged: (val) => setState(() => _email = val),
+              validator: (val) => val!.isEmpty ? 'Enter an email' : null,
+            ),
+            SizedBox(height: 15),
+            _buildAnimatedTextField(
+              hintText: 'Password',
+              obscureText: true,
+              onChanged: (val) => setState(() => _password = val),
+              validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+            ),
+            SizedBox(height: 20),
+            _buildLoginButton(),
+            SizedBox(height: 12),
+            Text(
+              _error,
+              style: TextStyle(color: Colors.red, fontSize: 14.0),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            _buildOrDivider(),
+            SizedBox(height: 20),
+            _buildCreateProfileButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedTitle() {
+    return Column(
+      children: [
+        Text(
+          'SECURE',
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        AnimatedTextKit(
+          animatedTexts: [
+            ColorizeAnimatedText(
+              'FUTURE',
+              textStyle: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              colors: [
+                Colors.purple,
+                Colors.blue,
+                Colors.yellow,
+                Colors.red,
+              ],
+            ),
+          ],
+          isRepeatingAnimation: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedTextField({
+    required String hintText,
+    bool obscureText = false,
+    required Function(String) onChanged,
+    required String? Function(String?) validator,
+  }) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - _animation.value)),
+          child: Opacity(
+            opacity: _animation.value,
+            child: TextFormField(
+              decoration: InputDecoration(
+                hintText: hintText,
+                border: OutlineInputBorder(),
+              ),
+              obscureText: obscureText,
+              onChanged: onChanged,
+              validator: validator,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return ElevatedButton(
+      child: Text('Log in'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        padding: EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      onPressed: () async {
+        if (_formKey.currentState!.validate()) {
+          dynamic result = await _auth.signIn(_email, _password);
+          if (result == null) {
+            setState(() => _error = 'Could not sign in with those credentials');
+          } else {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider()),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text('OR', style: TextStyle(color: Colors.grey)),
+        ),
+        Expanded(child: Divider()),
+      ],
+    );
+  }
+
+  Widget _buildCreateProfileButton() {
+    return OutlinedButton(
+      child: Text('CREATE A PROFILE'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.black,
+        side: BorderSide(color: Colors.black),
+        padding: EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      onPressed: () {
+        Navigator.pushNamed(context, '/register');
+      },
+    );
   }
 }
-
-
-// import 'package:flutter/material.dart';
-// import '../../services/auth_service.dart';
-// import '../../widgets/social_login_buttons.dart';
-
-// class LoginPage extends StatefulWidget {
-//   const LoginPage({Key? key}) : super(key: key);
-
-//   @override
-//   _LoginPageState createState() => _LoginPageState();
-// }
-
-// class _LoginPageState extends State<LoginPage> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _emailController = TextEditingController();
-//   final _passwordController = TextEditingController();
-//   final AuthService _auth = AuthService();
-//   bool _isLoading = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Login')),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.stretch,
-//             children: [
-//               TextFormField(
-//                 controller: _emailController,
-//                 decoration: const InputDecoration(labelText: 'Email'),
-//                 validator: (value) => value!.isEmpty ? 'Enter an email' : null,
-//               ),
-//               const SizedBox(height: 16),
-//               TextFormField(
-//                 controller: _passwordController,
-//                 decoration: const InputDecoration(labelText: 'Password'),
-//                 obscureText: true,
-//                 validator: (value) => value!.length < 6 ? 'Enter a password 6+ chars long' : null,
-//               ),
-//               const SizedBox(height: 24),
-//               ElevatedButton(
-//                 child: _isLoading
-//                     ? const CircularProgressIndicator(color: Colors.white)
-//                     : const Text('Login'),
-//                 onPressed: _isLoading ? null : _attemptLogin,
-//               ),
-//               const SizedBox(height: 16),
-//               TextButton(
-//                 child: const Text('Forgot Password?'),
-//                 onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-//               ),
-//               const SizedBox(height: 24),
-//               const Text('Or login with:', textAlign: TextAlign.center),
-//               const SizedBox(height: 16),
-//               SocialLoginButtons(
-//                 onGoogleLogin: _handleGoogleLogin,
-//                 // Add other social login methods here
-//               ),
-//               const SizedBox(height: 24),
-//               TextButton(
-//                 child: const Text('Create Account'),
-//                 onPressed: () => Navigator.pushNamed(context, '/register'),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Future<void> _attemptLogin() async {
-//     if (_formKey.currentState!.validate()) {
-//       setState(() => _isLoading = true);
-//       try {
-//         final user = await _auth.signIn(_emailController.text, _passwordController.text);
-//         if (user != null) {
-//           // Check if two-factor is enabled and handle accordingly
-//           // For simplicity, we're just navigating to home here
-//           Navigator.pushReplacementNamed(context, '/home');
-//         } else {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Failed to sign in. Please try again.')),
-//           );
-//         }
-//       } catch (e) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Error: ${e.toString()}')),
-//         );
-//       } finally {
-//         setState(() => _isLoading = false);
-//       }
-//     }
-//   }
-
-//   Future<void> _handleGoogleLogin() async {
-//     setState(() => _isLoading = true);
-//     try {
-//       final user = await _auth.signInWithGoogle();
-//       if (user != null) {
-//         Navigator.pushReplacementNamed(context, '/home');
-//       } else {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Failed to sign in with Google. Please try again.')),
-//         );
-//       }
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Error: ${e.toString()}')),
-//       );
-//     } finally {
-//       setState(() => _isLoading = false);
-//     }
-//   }
-// }
