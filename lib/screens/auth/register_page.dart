@@ -49,6 +49,11 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _locationController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -63,6 +68,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black87,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -73,22 +79,24 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
             controller: _scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(),
-                SizedBox(height: 32),
-                _buildUserTypeSelection(),
-                SizedBox(height: 32),
-                AnimatedSwitcher(
-                  duration: Duration(milliseconds: 500),
-                  child: userType == null
-                      ? SizedBox.shrink()
-                      : _buildRegistrationForm(),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  SizedBox(height: 32),
+                  _buildUserTypeSelection(),
+                  SizedBox(height: 32),
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 500),
+                    child: userType == null
+                        ? SizedBox.shrink()
+                        : _buildRegistrationForm(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -102,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         AnimatedTextKit(
           animatedTexts: [
             TypewriterAnimatedText(
-              'Join the Revolution',
+              'JOIN THE REVOLUTION',
               textStyle: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -289,7 +297,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           },
           selectedColor: Colors.blue.shade600.withOpacity(0.7),
           checkmarkColor: Colors.white,
-          backgroundColor: Colors.white.withOpacity(0.2),
+          backgroundColor: Colors.grey.shade800,
         );
       }).toList(),
     );
