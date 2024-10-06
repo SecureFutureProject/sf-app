@@ -68,12 +68,13 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade300, Colors.purple.shade300],
+            colors: [Colors.black87, Colors.grey.shade900],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
+            controller: _scrollController,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -151,8 +152,8 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       icon: Icon(icon, size: 28),
       label: Text(type, style: TextStyle(fontSize: 18)),
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black87,
-        backgroundColor: Colors.white,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         elevation: 5,
@@ -201,9 +202,17 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
             SizedBox(height: 16),
             _buildTextField(
               controller: _phoneController,
-              label: 'Phone (optional)',
+              label: 'Phone (Optional)',
               icon: Icons.phone,
               keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value != null && value.isNotEmpty) {
+                  if (value.length != 10 || !RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return 'Please enter a valid 10-digit phone number';
+                  }
+                }
+                return null;
+              },
             ),
             if (userType == 'Influencer') ...[
               SizedBox(height: 24),
@@ -219,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               child: Text('Create Account', style: TextStyle(fontSize: 18)),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Colors.blue.shade600,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 elevation: 5,
@@ -238,6 +247,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     required IconData icon,
     bool obscureText = false,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -249,13 +259,13 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           borderSide: BorderSide.none,
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.2),
+        fillColor: Colors.grey.shade800,
         labelStyle: TextStyle(color: Colors.white70),
       ),
       style: TextStyle(color: Colors.white),
       obscureText: obscureText,
       keyboardType: keyboardType,
-      validator: (value) => value!.isEmpty ? 'This field is required' : null,
+      validator: validator ?? (value) => value!.isEmpty ? 'This field is required' : null,
     );
   }
 
@@ -277,7 +287,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               }
             });
           },
-          selectedColor: Colors.deepPurple.withOpacity(0.7),
+          selectedColor: Colors.blue.shade600.withOpacity(0.7),
           checkmarkColor: Colors.white,
           backgroundColor: Colors.white.withOpacity(0.2),
         );
@@ -291,7 +301,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         name: _nameController.text,
         email: _emailController.text,
         location: _locationController.text,
-        phone: _phoneController.text,
+        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
         niches: userType == 'Influencer' ? selectedNiches : [],
         userType: userType!,
       );
@@ -317,29 +327,29 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   }
 
   IconData _getIconForNiche(String niche) {
-  switch (niche) {
-    case 'Fashion':
-      return Icons.style;
-    case 'Beauty':
-      return Icons.face;
-    case 'Fitness':
-      return Icons.fitness_center;
-    case 'Technology':
-      return Icons.computer;
-    case 'Food':
-      return Icons.restaurant;
-    case 'Travel':
-      return Icons.flight;
-    case 'Lifestyle':
-      return Icons.home;
-    case 'Gaming':
-      return Icons.games;
-    case 'Music':
-      return Icons.music_note;
-    case 'Art':
-      return Icons.palette;
-    default:
-      return Icons.category; // Default icon for any unmatched niche
+    switch (niche) {
+      case 'Fashion':
+        return Icons.style;
+      case 'Beauty':
+        return Icons.face;
+      case 'Fitness':
+        return Icons.fitness_center;
+      case 'Technology':
+        return Icons.computer;
+      case 'Food':
+        return Icons.restaurant;
+      case 'Travel':
+        return Icons.flight;
+      case 'Lifestyle':
+        return Icons.home;
+      case 'Gaming':
+        return Icons.games;
+      case 'Music':
+        return Icons.music_note;
+      case 'Art':
+        return Icons.palette;
+      default:
+        return Icons.category;
+    }
   }
-}
 }
