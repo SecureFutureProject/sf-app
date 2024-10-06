@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade200, Colors.purple.shade200],
+            colors: [Colors.black87, Colors.grey.shade900],
           ),
         ),
         child: Row(
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Widget _buildLeftSide() {
     return Container(
-      color: Colors.white.withOpacity(0.8),
+      color: Colors.black87.withOpacity(0.8),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -77,11 +77,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               child: ScaleTransition(
                 scale: _animation,
                 child: Text(
-                  'COMING\nSOON',
+                  'WELCOME BACK',
                   style: TextStyle(
                     fontSize: 72,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF6B6B),
+                    color: Colors.white,
                     height: 0.9,
                   ),
                   textAlign: TextAlign.center,
@@ -92,12 +92,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             DefaultTextStyle(
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.black87,
+                color: Colors.white70,
               ),
               child: AnimatedTextKit(
                 animatedTexts: [
                   TypewriterAnimatedText(
-                    'NEW ERA OF INFLUENCER MARKETING',
+                    'LOGIN TO YOUR ACCOUNT',
                     speed: Duration(milliseconds: 100),
                   ),
                 ],
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget _buildRightSide() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 40),
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.grey.shade900.withOpacity(0.9),
       child: Form(
         key: _formKey,
         child: Column(
@@ -160,24 +160,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
           textAlign: TextAlign.center,
         ),
         AnimatedTextKit(
           animatedTexts: [
-            ColorizeAnimatedText(
+            TypewriterAnimatedText(
               'FUTURE',
               textStyle: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Colors.blue.shade600,
               ),
-              colors: [
-                Colors.purple,
-                Colors.blue,
-                Colors.yellow,
-                Colors.red,
-              ],
+              speed: Duration(milliseconds: 200),
             ),
           ],
           isRepeatingAnimation: true,
@@ -202,11 +198,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             child: TextFormField(
               decoration: InputDecoration(
                 hintText: hintText,
-                border: OutlineInputBorder(),
+                hintStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey.shade800,
               ),
               obscureText: obscureText,
               onChanged: onChanged,
               validator: validator,
+              style: TextStyle(color: Colors.white),
             ),
           ),
         );
@@ -218,8 +221,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return ElevatedButton(
       child: Text('Log in'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-        padding: EdgeInsets.symmetric(vertical: 15),
+        backgroundColor: Colors.blue.shade600,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
@@ -240,23 +244,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget _buildOrDivider() {
     return Row(
       children: [
-        Expanded(child: Divider()),
+        Expanded(child: Divider(color: Colors.white70)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Text('OR', style: TextStyle(color: Colors.grey)),
+          child: Text('OR', style: TextStyle(color: Colors.white70)),
         ),
-        Expanded(child: Divider()),
+        Expanded(child: Divider(color: Colors.white70)),
       ],
     );
   }
 
   Widget _buildCreateProfileButton() {
     return OutlinedButton(
-      child: Text('CREATE A PROFILE'),
+      child: Text('CREATE A PROFILE', style: TextStyle(color: Colors.white)),
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.black,
-        side: BorderSide(color: Colors.black),
-        padding: EdgeInsets.symmetric(vertical: 15),
+        side: BorderSide(color: Colors.white),
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
