@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.active) {
             final User? user = snapshot.data;
             if (user == null) {
-              return const LoginPage();
+              return LoginPage();
             }
             return HomePage();
           }
@@ -42,8 +42,8 @@ class MyApp extends StatelessWidget {
         },
       ),
       routes: {
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(),
       },
     );
