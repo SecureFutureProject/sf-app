@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
               return LoginPage();
             }
             if (userModel.userType == 'Influencer') {
-              return InfluencerProfilePage(uid: userModel.id);
+              return InfluencerProfilePage(id: userModel.id);
             }
             return HomePage();
           }
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(),
-        '/influencer_profile': (context) => InfluencerProfilePage(uid: _auth.currentUser?.uid ?? ''),
+        '/influencer_profile': (context) => InfluencerProfilePage(id: _auth.currentUser?.uid ?? ''),
       },
     );
   }

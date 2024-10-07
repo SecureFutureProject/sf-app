@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_model.dart';
 
-class InfluencerModel {
-  final String id;
+class InfluencerModel extends UserModel {
   final String bio;
   final List<String> socialMediaLinks;
   final List<String> portfolio;
@@ -10,7 +9,7 @@ class InfluencerModel {
   final bool isProfilePublic;
 
   InfluencerModel({
-    required this.id,
+    required String id,
     required String name,
     required String email,
     required String location,
@@ -21,7 +20,7 @@ class InfluencerModel {
     required this.portfolio,
     this.isVerified = false,
     this.isProfilePublic = true,
-  }): super(
+  }) : super(
           id: id,
           name: name,
           email: email,
@@ -32,20 +31,45 @@ class InfluencerModel {
         );
 
   @override
+  InfluencerModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? location,
+    String? phone,
+    List<String>? niches,
+    String? userType,
+    String? bio,
+    List<String>? socialMediaLinks,
+    List<String>? portfolio,
+    bool? isVerified,
+    bool? isProfilePublic,
+  }) {
+    return InfluencerModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      location: location ?? this.location,
+      phone: phone ?? this.phone,
+      niches: niches ?? this.niches,
+      bio: bio ?? this.bio,
+      socialMediaLinks: socialMediaLinks ?? this.socialMediaLinks,
+      portfolio: portfolio ?? this.portfolio,
+      isVerified: isVerified ?? this.isVerified,
+      isProfilePublic: isProfilePublic ?? this.isProfilePublic,
+    );
+  }
+
+  @override
   Map<String, dynamic> toMap() {
+    final baseMap = super.toMap();
     return {
+      ...baseMap,
       'bio': bio,
       'socialMediaLinks': socialMediaLinks,
       'portfolio': portfolio,
       'isVerified': isVerified,
       'isProfilePublic': isProfilePublic,
-    };
-  }
-
-  Map<String, dynamic> toFullMap() {
-    return {
-      ...super.toMap(),
-      ...toMap(),
     };
   }
 
@@ -66,6 +90,7 @@ class InfluencerModel {
   }
 
   factory InfluencerModel.fromDocument(DocumentSnapshot doc) {
-    return InfluencerModel.fromMap(doc.data() as Map<String, dynamic>);
+    final data = doc.data() as Map<String, dynamic>;
+    return InfluencerModel.fromMap({...data, 'id': doc.id});
   }
 }

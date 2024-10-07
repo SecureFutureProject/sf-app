@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   final String id;
   final String name;
@@ -7,10 +5,10 @@ class UserModel {
   final String location;
   final String? phone;
   final List<String> niches;
-  final String userType;      // "Influncer" or "Business"
+  final String userType;      // "Influencer" or "Business"
 
   UserModel({
-    required this.id
+    required this.id,
     required this.name,
     required this.email,
     required this.location,
@@ -38,17 +36,28 @@ class UserModel {
       email: map['email']?.toString() ?? '',
       location: map['location']?.toString() ?? '',
       phone: map['phone']?.toString(),
-      niches: (map['niches'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      niches: List<String>.from(map['niches'] ?? []),
       userType: map['userType']?.toString() ?? '',
     );
   }
 
-  factory UserModel.fromDocument(DocumentSnapshot doc) {
-    return UserModel.fromMap(doc.data() as Map<String, dynamic>);
-  }
-
-  @override
-  String toString() {
-    return 'UserModel(name: $name, email: $email, location: $location, phone: $phone, niches: $niches, userType: $userType)';
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? location,
+    String? phone,
+    List<String>? niches,
+    String? userType,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      location: location ?? this.location,
+      phone: phone ?? this.phone,
+      niches: niches ?? this.niches,
+      userType: userType ?? this.userType,
+    );
   }
 }
