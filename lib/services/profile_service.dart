@@ -7,7 +7,7 @@ class ProfileService {
 
   Future<void> saveInfluencerProfile(InfluencerModel influencer) async {
     try {
-      await _firestore.collection('influencers').doc(influencer.uid).set(influencer.toMap());
+      await _firestore.collection('influencers').doc(influencer.id).set(influencer.toMap());
     } catch (e) {
       print('Error saving influencer profile: ${e.toString()}');
       throw e;
@@ -16,18 +16,18 @@ class ProfileService {
 
   Future<void> saveBusinessProfile(BusinessModel business) async {
     try {
-      await _firestore.collection('businesses').doc(business.uid).set(business.toMap());
+      await _firestore.collection('businesses').doc(business.id).set(business.toMap());
     } catch (e) {
       print('Error saving business profile: ${e.toString()}');
       throw e;
     }
   }
 
-  Future<InfluencerModel?> getInfluencerProfile(String uid) async {
+  Future<InfluencerModel?> getInfluencerProfile(String id) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('influencers').doc(uid).get();
+      DocumentSnapshot doc = await _firestore.collection('influencers').doc(id).get();
       if (doc.exists) {
-        return InfluencerModel.fromDocument(doc);
+        return InfluencerModel.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
     } catch (e) {
@@ -36,11 +36,11 @@ class ProfileService {
     }
   }
 
-  Future<BusinessModel?> getBusinessProfile(String uid) async {
+  Future<BusinessModel?> getBusinessProfile(String id) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('businesses').doc(uid).get();
+      DocumentSnapshot doc = await _firestore.collection('businesses').doc(id).get();
       if (doc.exists) {
-        return BusinessModel.fromDocument(doc);
+        return BusinessModel.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
     } catch (e) {
@@ -49,18 +49,18 @@ class ProfileService {
     }
   }
 
-  Future<void> updateInfluencerVerificationStatus(String uid, bool isVerified) async {
+  Future<void> updateInfluencerVerificationStatus(String id, bool isVerified) async {
     try {
-      await _firestore.collection('influencers').doc(uid).update({'isVerified': isVerified});
+      await _firestore.collection('influencers').doc(id).update({'isVerified': isVerified});
     } catch (e) {
       print('Error updating influencer verification status: ${e.toString()}');
       throw e;
     }
   }
 
-  Future<void> updateInfluencerPrivacySettings(String uid, bool isPublic) async {
+  Future<void> updateInfluencerPrivacySettings(String id, bool isPublic) async {
     try {
-      await _firestore.collection('influencers').doc(uid).update({'isProfilePublic': isPublic});
+      await _firestore.collection('influencers').doc(id).update({'isProfilePublic': isPublic});
     } catch (e) {
       print('Error updating influencer privacy settings: ${e.toString()}');
       throw e;

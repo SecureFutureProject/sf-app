@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import '../models/user_model.dart';
+import '../models/influencer_model.dart';
 
 class DatabaseService {
   final FirebaseDatabase _database = FirebaseDatabase.instance;
@@ -8,9 +9,9 @@ class DatabaseService {
     _database.databaseURL = 'https://sf-app-30c3c-default-rtdb.asia-southeast1.firebasedatabase.app/';
   }
 
-  Future<void> saveUser(String uid, UserModel user) async {
+  Future<void> saveUser(UserModel user) async {
     try {
-      await _database.ref().child('users').child(uid).set(user.toMap());
+      await _database.ref().child('users').child(user.id).set(user.toMap());
     } catch (e) {
       print('Error saving user data: ${e.toString()}');
       throw e;
@@ -21,8 +22,10 @@ class DatabaseService {
     try {
       DataSnapshot snapshot = await _database.ref().child('users').child(uid).get();
       if (snapshot.exists) {
-        // Convert the data to the correct type
         Map<String, dynamic> userData = _convertToStringDynamicMap(snapshot.value);
+        if (userData['userType'] == 'Influencer') {
+          return InfluencerModel.fromMap(userData);
+        }
         return UserModel.fromMap(userData);
       }
       return null;
@@ -45,5 +48,31 @@ class DatabaseService {
     throw ArgumentError('Value must be a Map');
   }
 
-  // ... rest of the methods remain the same
+  // Add methods for saving and retrieving specific user types if needed
+  Future<void> saveInfluencer(InfluencerModel influencer) async {
+    try {
+      await _database.ref().child('users').child(influencer.id).set(influencer.toMap());
+    } catch (e) {
+      print('Error saving influencer data: ${e.toString()}');
+      throw e;
+    }
+  }
+
+  Future<InfluencerModel?> getInfluencer(String uid) async {
+    try {
+      DataSnapshot snapshot = await _database.ref().child('users').child(uid).get();
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = _convertToStringDynamicMap(snapshot.value);
+        if (userData['userType'] == 'Influencer') {
+          return InfluencerModel.fromMap(userData);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error getting influencer data: ${e.toString()}');
+      return null;
+    }
+  }
+
+  // ... You can add similar methods for BusinessModel if needed
 }

@@ -6,9 +6,9 @@ import '../../utils/validators.dart';
 import '../../utils/constants.dart';
 
 class InfluencerProfilePage extends StatefulWidget {
-  final String uid;
+  final String id;
 
-  const InfluencerProfilePage({Key? key, required this.uid}) : super(key: key);
+  const InfluencerProfilePage({Key? key, required this.id}) : super(key: key);
 
   @override
   _InfluencerProfilePageState createState() => _InfluencerProfilePageState();
@@ -21,41 +21,35 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
 
   final _formKey = GlobalKey<FormState>();
   final _bioController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _phoneController = TextEditingController();
   List<String> _socialMediaLinks = [];
   List<String> _portfolio = [];
+  List<String> _niches = [];
   bool _isProfilePublic = true;
   String? _profileImageUrl;
 
   @override
   void initState() {
     super.initState();
-    _influencerFuture = _profileService.getInfluencerProfile(widget.uid);
+    _influencerFuture = _profileService.getInfluencerProfile(widget.id);
   }
 
   @override
   void dispose() {
     _bioController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _locationController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Influencer Profile'),
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              if (_isEditing) {
-                _saveProfile();
-              } else {
-                setState(() => _isEditing = true);
-              }
-            },
-          ),
-        ],
-      ),
       body: FutureBuilder<InfluencerModel?>(
         future: _influencerFuture,
         builder: (context, snapshot) {
@@ -63,115 +57,289 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.data == null) {
-            return const Center(child: Text('Influencer profile not found'));
           }
 
-          final influencer = snapshot.data!;
-          _populateFields(influencer);
+          final influencer = snapshot.data;
+          if (influencer != null) {
+            _populateFields(influencer);
+          }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: ProfileImagePicker(
-                      imageUrl: _profileImageUrl,
-                      onTap: _handleImagePick,
-                      enabled: _isEditing,
-                    ),
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInfoSection(),
+                      const SizedBox(height: 24),
+                      _buildNichesSection(),
+                      const SizedBox(height: 24),
+                      _buildSocialMediaSection(),
+                      const SizedBox(height: 24),
+                      _buildPortfolioSection(),
+                      const SizedBox(height: 24),
+                      _buildPrivacySection(),
+                      if (influencer != null && !influencer.isVerified)
+                        _buildVerificationButton(),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _bioController,
-                    decoration: const InputDecoration(labelText: 'Bio'),
-                    maxLines: 3,
-                    enabled: _isEditing,
-                    validator: (value) => value!.isEmpty ? 'Bio is required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Social Media Links', style: Theme.of(context).textTheme.titleMedium),
-                  ..._buildSocialMediaLinks(),
-                  const SizedBox(height: 16),
-                  Text('Portfolio', style: Theme.of(context).textTheme.titleMedium),
-                  ..._buildPortfolio(),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    title: const Text('Public Profile'),
-                    value: _isProfilePublic,
-                    onChanged: _isEditing ? (value) => setState(() => _isProfilePublic = value) : null,
-                  ),
-                  if (!influencer.isVerified)
-                    ElevatedButton(
-                      child: const Text('Request Verification'),
-                      onPressed: _requestVerification,
-                    ),
-                ],
+                ),
               ),
-            ),
+            ],
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() => _isEditing = !_isEditing);
+          if (!_isEditing) {
+            _saveProfile();
+          }
+        },
+        child: Icon(_isEditing ? Icons.save : Icons.edit),
+      ),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      expandedHeight: 200.0,
+      floating: false,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(_nameController.text),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.blue.shade700, Colors.blue.shade500],
+            ),
+          ),
+          child: Center(
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+              ),
+              child: ClipOval(
+                child: ProfileImagePicker(
+                  imageUrl: _profileImageUrl,
+                  onTap: _handleImagePick,
+                  enabled: _isEditing,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Personal Information',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            _buildInfoItem(Icons.person, 'Name', _nameController.text),
+            _buildInfoItem(Icons.email, 'Email', _emailController.text),
+            _buildInfoItem(Icons.location_on, 'Location', _locationController.text),
+            _buildInfoItem(Icons.phone, 'Phone', _phoneController.text),
+            _buildInfoItem(Icons.description, 'Bio', _bioController.text),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blue),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(value),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNichesSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Niches',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _niches.isEmpty
+                  ? [Chip(label: Text('Add your niches'))]
+                  : _niches.map((niche) => Chip(
+                        label: Text(niche),
+                        deleteIcon: _isEditing ? const Icon(Icons.close) : null,
+                        onDeleted: _isEditing ? () => setState(() => _niches.remove(niche)) : null,
+                      )).toList(),
+            ),
+            if (_isEditing)
+              TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Add Niche'),
+                onPressed: () => _showAddDialog('Add Niche', (value) => setState(() => _niches.add(value))),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialMediaSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Social Media Links',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            ..._buildSocialMediaLinks(),
+            if (_isEditing)
+              TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Add Social Media Link'),
+                onPressed: _addSocialMediaLink,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Portfolio',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            ..._buildPortfolio(),
+            if (_isEditing)
+              TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Add Portfolio Item'),
+                onPressed: _addPortfolioItem,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrivacySection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SwitchListTile(
+          title: const Text('Public Profile'),
+          subtitle: const Text('Make your profile visible to others'),
+          value: _isProfilePublic,
+          onChanged: _isEditing ? (value) => setState(() => _isProfilePublic = value) : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerificationButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: ElevatedButton(
+        child: const Text('Request Verification'),
+        onPressed: _requestVerification,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        ),
       ),
     );
   }
 
   void _handleImagePick() {
-    // Implement image picking functionality here
-    // For now, we'll just show a placeholder message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Image picker functionality to be implemented')),
     );
   }
 
   List<Widget> _buildSocialMediaLinks() {
-    return [
-      ..._socialMediaLinks.asMap().entries.map((entry) {
-        int idx = entry.key;
-        String link = entry.value;
-        return ListTile(
-          title: Text(link),
-          trailing: _isEditing ? IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => setState(() => _socialMediaLinks.removeAt(idx)),
-          ) : null,
-        );
-      }),
-      if (_isEditing)
-        ListTile(
-          title: const Text('Add Social Media Link'),
-          trailing: IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _addSocialMediaLink,
-          ),
-        ),
-    ];
+    return _socialMediaLinks.asMap().entries.map((entry) {
+      int idx = entry.key;
+      String link = entry.value;
+      return ListTile(
+        leading: const Icon(Icons.link, color: Colors.blue),
+        title: Text(link),
+        trailing: _isEditing
+            ? IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => setState(() => _socialMediaLinks.removeAt(idx)),
+              )
+            : null,
+      );
+    }).toList();
   }
 
   List<Widget> _buildPortfolio() {
-    return [
-      ..._portfolio.asMap().entries.map((entry) {
-        int idx = entry.key;
-        String item = entry.value;
-        return ListTile(
-          title: Text(item),
-          trailing: _isEditing ? IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => setState(() => _portfolio.removeAt(idx)),
-          ) : null,
-        );
-      }),
-      if (_isEditing)
-        ListTile(
-          title: const Text('Add Portfolio Item'),
-          trailing: IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _addPortfolioItem,
-          ),
-        ),
-    ];
+    return _portfolio.asMap().entries.map((entry) {
+      int idx = entry.key;
+      String item = entry.value;
+      return ListTile(
+        leading: const Icon(Icons.work, color: Colors.blue),
+        title: Text(item),
+        trailing: _isEditing
+            ? IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => setState(() => _portfolio.removeAt(idx)),
+              )
+            : null,
+      );
+    }).toList();
   }
 
   void _addSocialMediaLink() {
@@ -215,23 +383,40 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+  void _requestVerification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Verification request functionality to be implemented')),
+    );
+  }
+
   void _populateFields(InfluencerModel influencer) {
     _bioController.text = influencer.bio;
+    _nameController.text = influencer.name;
+    _emailController.text = influencer.email;
+    _locationController.text = influencer.location;
+    _phoneController.text = influencer.phone ?? '';
     _socialMediaLinks = List.from(influencer.socialMediaLinks);
     _portfolio = List.from(influencer.portfolio);
+    _niches = List.from(influencer.niches);
     _isProfilePublic = influencer.isProfilePublic;
-    _profileImageUrl = influencer.uid; // Assuming uid is used as image name
+    _profileImageUrl = influencer.id; // Assuming id is used as image name
   }
 
   void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
+      final currentInfluencer = await _influencerFuture;
       final updatedInfluencer = InfluencerModel(
-        uid: widget.uid,
+        id: widget.id,
+        name: _nameController.text,
+        email: _emailController.text,
+        location: _locationController.text,
+        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
+        niches: _niches,
         bio: _bioController.text,
         socialMediaLinks: _socialMediaLinks,
         portfolio: _portfolio,
         isProfilePublic: _isProfilePublic,
-        isVerified: (await _influencerFuture)?.isVerified ?? false,
+        isVerified: currentInfluencer?.isVerified ?? false,
       );
 
       try {
@@ -249,13 +434,5 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
         );
       }
     }
-  }
-
-  void _requestVerification() {
-    // Implement verification request logic here
-    // For now, we'll just show a placeholder message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Verification request functionality to be implemented')),
-    );
   }
 }

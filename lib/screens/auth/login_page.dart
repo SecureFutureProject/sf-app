@@ -272,7 +272,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       if (result == null) {
         setState(() => _error = 'Could not sign in with those credentials');
       } else {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/influencer_profile');
       }
     }
   }

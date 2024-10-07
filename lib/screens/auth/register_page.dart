@@ -306,6 +306,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   void _registerUser() async {
     if (_formKey.currentState!.validate() && (userType == 'Brand' || selectedNiches.isNotEmpty)) {
       UserModel user = UserModel(
+        id: '', // This will be set by Firebase Auth
         name: _nameController.text,
         email: _emailController.text,
         location: _locationController.text,
@@ -322,7 +323,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           ),
         );
       } else {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/influencer_profile');
       }
     } else if (userType == 'Influencer' && selectedNiches.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

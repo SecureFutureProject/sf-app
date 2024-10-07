@@ -5,7 +5,9 @@ import 'firebase_options.dart';
 import 'screens/auth/login_page.dart';
 import 'screens/auth/register_page.dart';
 import 'screens/home_page.dart';
+import 'screens/profile/influencer_profile_page.dart';
 import 'services/auth_service.dart';
+import 'models/user_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,13 +30,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: StreamBuilder<User?>(
-        stream: _auth.user,
+      home: StreamBuilder<UserModel?>(
+        stream: _auth.userModel,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
-            final User? user = snapshot.data;
-            if (user == null) {
+            final UserModel? userModel = snapshot.data;
+            if (userModel == null) {
               return LoginPage();
+            }
+            if (userModel.userType == 'Influencer') {
+              return InfluencerProfilePage(id: userModel.id);
             }
             return HomePage();
           }
@@ -45,6 +50,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(),
+        '/influencer_profile': (context) => InfluencerProfilePage(id: _auth.currentUser?.uid ?? ''),
       },
     );
   }
