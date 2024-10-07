@@ -8,30 +8,34 @@ class AuthService {
   final GoogleSignIn? _googleSignIn = GoogleSignIn();
   final DatabaseService _databaseService = DatabaseService();
 
-  Stream<User?> get user => _auth.authStateChanges();
+  Stream<UserModel?> get userModel => _auth.authStateChanges().asyncMap((user) async {
+    if (user == null) return null;
+    return await _databaseService.getUser(user.uid);
+  });
 
-  Future<User?> signIn(String email, String password) async {
+  Future<UserModel?> signIn(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return result.user;
+      return await _databaseService.getUser(result.user!.uid);
     } catch (e) {
       print('Error signing in: ${e.toString()}');
       return null;
     }
   }
 
-  Future<User?> signUp(String email, String password, UserModel user) async {
+  Future<UserModel?> signUp(String email, String password, UserModel user) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      await _databaseService.saveUser(result.user!.uid, user);
-      return result.user;
+      user = user.copyWith(id: result.user!.uid);  // Ensure the user model has the correct UID
+      await _databaseService.saveUser(user);
+      return user;
     } catch (e) {
       print('Error signing up: ${e.toString()}');
       return null;
     }
   }
 
-  Future<User?> signInWithGoogle() async {
+  Future<UserModel?> signInWithGoogle() async {
     if (_googleSignIn == null) {
       print('Google Sign-In is not available');
       return null;
@@ -45,7 +49,7 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
       UserCredential result = await _auth.signInWithCredential(credential);
-      return result.user;
+      return await _databaseService.getUser(result.user!.uid);
     } catch (e) {
       print('Error signing in with Google: ${e.toString()}');
       return null;
@@ -79,4 +83,6 @@ class AuthService {
       throw e;
     }
   }
+
+  User? get currentUser => _auth.currentUser;
 }
