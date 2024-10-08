@@ -104,6 +104,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Profile Picture
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 200.0,
@@ -121,8 +122,8 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
           ),
           child: Center(
             child: Container(
-              width: 120,
-              height: 120,
+              width: 180,
+              height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 3),
@@ -130,8 +131,8 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
               child: ClipOval(
                 child: ProfileImagePicker(
                   imageUrl: _profileImageUrl,
-                  onTap: _handleImagePick,
-                  enabled: _isEditing,
+                  onTap: _handleImagePick,                          // Image pick
+                  enabled: _isEditing,                              // Editing
                 ),
               ),
             ),
@@ -141,6 +142,8 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+
+// Personal Information
   Widget _buildInfoSection() {
     return Card(
       elevation: 2,
@@ -165,6 +168,8 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+
+// Icon Labels in Personal Info
   Widget _buildInfoItem(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -186,6 +191,8 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+
+// Niches:
   Widget _buildNichesSection() {
     return Card(
       elevation: 2,
@@ -222,6 +229,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Social Media
   Widget _buildSocialMediaSection() {
     return Card(
       elevation: 2,
@@ -248,6 +256,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Portfolio:
   Widget _buildPortfolioSection() {
     return Card(
       elevation: 2,
@@ -274,6 +283,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Privacy: 
   Widget _buildPrivacySection() {
     return Card(
       elevation: 2,
@@ -289,6 +299,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Verification 
   Widget _buildVerificationButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -302,12 +313,16 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+
+// Profile Picture
   void _handleImagePick() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Image picker functionality to be implemented')),
     );
   }
 
+
+// Social Media
   List<Widget> _buildSocialMediaLinks() {
     return _socialMediaLinks.asMap().entries.map((entry) {
       int idx = entry.key;
@@ -325,6 +340,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     }).toList();
   }
 
+// Portfolio
   List<Widget> _buildPortfolio() {
     return _portfolio.asMap().entries.map((entry) {
       int idx = entry.key;
@@ -342,18 +358,21 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     }).toList();
   }
 
+// Socail Media
   void _addSocialMediaLink() {
     _showAddDialog('Add Social Media Link', (value) {
       setState(() => _socialMediaLinks.add(value));
     });
   }
 
+// Portfolio
   void _addPortfolioItem() {
     _showAddDialog('Add Portfolio Item', (value) {
       setState(() => _portfolio.add(value));
     });
   }
 
+// Add Dialog 
   void _showAddDialog(String title, Function(String) onAdd) {
     showDialog(
       context: context,
@@ -383,12 +402,15 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     );
   }
 
+// Request Verfication:
   void _requestVerification() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Verification request functionality to be implemented')),
     );
   }
 
+
+// 
   void _populateFields(InfluencerModel influencer) {
     _bioController.text = influencer.bio;
     _nameController.text = influencer.name;
@@ -402,6 +424,7 @@ class _InfluencerProfilePageState extends State<InfluencerProfilePage> {
     _profileImageUrl = influencer.id; // Assuming id is used as image name
   }
 
+// Saving after edit 
   void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       final currentInfluencer = await _influencerFuture;

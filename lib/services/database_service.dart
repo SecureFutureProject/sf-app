@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import '../models/user_model.dart';
 import '../models/influencer_model.dart';
+import '../models/business_model.dart'; // Add this import if you have a BusinessModel
 
 class DatabaseService {
   final FirebaseDatabase _database = FirebaseDatabase.instance;
@@ -23,14 +24,21 @@ class DatabaseService {
       DataSnapshot snapshot = await _database.ref().child('users').child(uid).get();
       if (snapshot.exists) {
         Map<String, dynamic> userData = _convertToStringDynamicMap(snapshot.value);
-        if (userData['userType'] == 'Influencer') {
-          return InfluencerModel.fromMap(userData);
+        String userType = userData['userType'] ?? '';
+        switch (userType) {
+          case 'Influencer':
+            return InfluencerModel.fromMap(userData);
+          case 'Business':
+            return BusinessModel.fromMap(userData); // Assuming you have a BusinessModel
+          default:
+            return UserModel.fromMap(userData);
         }
-        return UserModel.fromMap(userData);
+      } else {
+        print('User document does not exist for uid: $uid'); // Debug print
+        return null;
       }
-      return null;
     } catch (e) {
-      print('Error getting user data: ${e.toString()}');
+      print('Error getting user: ${e.toString()}');
       return null;
     }
   }
@@ -48,7 +56,6 @@ class DatabaseService {
     throw ArgumentError('Value must be a Map');
   }
 
-  // Add methods for saving and retrieving specific user types if needed
   Future<void> saveInfluencer(InfluencerModel influencer) async {
     try {
       await _database.ref().child('users').child(influencer.id).set(influencer.toMap());
@@ -74,5 +81,29 @@ class DatabaseService {
     }
   }
 
-  // ... You can add similar methods for BusinessModel if needed
+  // Add a method for saving and retrieving BusinessModel
+  Future<void> saveBusiness(BusinessModel business) async {
+    try {
+      await _database.ref().child('users').child(business.id).set(business.toMap());
+    } catch (e) {
+      print('Error saving business data: ${e.toString()}');
+      throw e;
+    }
+  }
+
+  Future<BusinessModel?> getBusiness(String uid) async {
+    try {
+      DataSnapshot snapshot = await _database.ref().child('users').child(uid).get();
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = _convertToStringDynamicMap(snapshot.value);
+        if (userData['userType'] == 'Business') {
+          return BusinessModel.fromMap(userData);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error getting business data: ${e.toString()}');
+      return null;
+    }
+  }
 }

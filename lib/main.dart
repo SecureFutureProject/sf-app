@@ -6,6 +6,7 @@ import 'screens/auth/login_page.dart';
 import 'screens/auth/register_page.dart';
 import 'screens/home_page.dart';
 import 'screens/profile/influencer_profile_page.dart';
+import 'screens/profile/business_profile_page.dart';
 import 'services/auth_service.dart';
 import 'models/user_model.dart';
 
@@ -38,10 +39,14 @@ class MyApp extends StatelessWidget {
             if (userModel == null) {
               return LoginPage();
             }
-            if (userModel.userType == 'Influencer') {
-              return InfluencerProfilePage(id: userModel.id);
+            switch (userModel.userType) {
+              case 'Influencer':
+                return InfluencerProfilePage(id: userModel.id);
+              case 'Business':
+                return BusinessProfilePage(id: userModel.id);
+              default:
+                return HomePage();
             }
-            return HomePage();
           }
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         },
@@ -51,6 +56,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(),
         '/influencer_profile': (context) => InfluencerProfilePage(id: _auth.currentUser?.uid ?? ''),
+        '/business_profile': (context) => BusinessProfilePage(id: _auth.currentUser?.uid ?? ''),
       },
     );
   }
