@@ -6,9 +6,9 @@ import '../../utils/validators.dart';
 import '../../utils/constants.dart';
 
 class BusinessProfilePage extends StatefulWidget {
-  final String uid;
+  final String id;
 
-  const BusinessProfilePage({Key? key, required this.uid}) : super(key: key);
+  const BusinessProfilePage({Key? key, required this.id}) : super(key: key);
 
   @override
   _BusinessProfilePageState createState() => _BusinessProfilePageState();
@@ -26,13 +26,14 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _websiteController = TextEditingController();
+  final _nichesController = TextEditingController();
   List<String> _socialMediaLinks = [];
   String? _logoUrl;
 
   @override
   void initState() {
     super.initState();
-    _businessFuture = _profileService.getBusinessProfile(widget.uid);
+    _businessFuture = _profileService.getBusinessProfile(widget.id);
   }
 
   @override
@@ -43,6 +44,7 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
     _emailController.dispose();
     _phoneController.dispose();
     _websiteController.dispose();
+    _nichesController.dispose();
     super.dispose();
   }
 
@@ -216,14 +218,15 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
   }
 
   void _populateFields(BusinessModel business) {
-    _businessNameController.text = business.businessName;
-    _contactDescriptionController.text = business.contactDescription;
-    _industryController.text = business.industry;
-    _emailController.text = business.email;
-    _phoneController.text = business.phone;
-    _websiteController.text = business.website;
-    _socialMediaLinks = List.from(business.socialMediaLinks);
-    _logoUrl = business.logoUrl;
+  _businessNameController.text = business.businessName;
+  _contactDescriptionController.text = business.contactDescription;
+  _industryController.text = business.industry;
+  _emailController.text = business.email;
+  _phoneController.text = business.phone ?? ''; // Handle nullable phone
+  _websiteController.text = business.website;
+  _socialMediaLinks = List.from(business.socialMediaLinks);
+  _logoUrl = business.logoUrl;
+  _nichesController.text = business.niches.join(', '); // Add this line
   }
 
   void _handleImagePick() {
@@ -237,7 +240,7 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
   void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       final updatedBusiness = BusinessModel(
-        uid: widget.uid,
+        id: widget.id,
         businessName: _businessNameController.text,
         logoUrl: _logoUrl ?? '',
         contactDescription: _contactDescriptionController.text,
@@ -246,6 +249,8 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
         phone: _phoneController.text,
         website: _websiteController.text,
         socialMediaLinks: _socialMediaLinks,
+        location: '',
+        niches: _nichesController.text.split(',').map((e) => e.trim()).toList(), // Add this line
       );
 
       try {

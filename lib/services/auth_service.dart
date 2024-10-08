@@ -14,14 +14,16 @@ class AuthService {
   });
 
   Future<UserModel?> signIn(String email, String password) async {
-    try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return await _databaseService.getUser(result.user!.uid);
-    } catch (e) {
-      print('Error signing in: ${e.toString()}');
-      return null;
-    }
+  try {
+    UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    UserModel? user = await _databaseService.getUser(result.user!.uid);
+    print('User retrieved from database: ${user?.toString()}'); // Debug print
+    return user;
+  } catch (e) {
+    print('Error signing in: ${e.toString()}');
+    return null;
   }
+}
 
   Future<UserModel?> signUp(String email, String password, UserModel user) async {
     try {

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class UserModel {
   final String id;
   final String name;
@@ -7,7 +9,7 @@ class UserModel {
   final List<String> niches;
   final String userType;      // "Influencer" or "Business"
 
-  UserModel({
+  const UserModel({
     required this.id,
     required this.name,
     required this.email,
@@ -59,5 +61,35 @@ class UserModel {
       niches: niches ?? this.niches,
       userType: userType ?? this.userType,
     );
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(id: $id, name: $name, email: $email, location: $location, phone: $phone, niches: $niches, userType: $userType)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is UserModel &&
+      other.id == id &&
+      other.name == name &&
+      other.email == email &&
+      other.location == location &&
+      other.phone == phone &&
+      listEquals(other.niches, niches) &&
+      other.userType == userType;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+      name.hashCode ^
+      email.hashCode ^
+      location.hashCode ^
+      phone.hashCode ^
+      niches.hashCode ^
+      userType.hashCode;
   }
 }

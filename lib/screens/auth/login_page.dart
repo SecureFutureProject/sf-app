@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import '../../services/auth_service.dart';
+import '../../models/user_model.dart';  // Add this import
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -38,6 +39,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +67,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Left side BG:
   Widget _buildLeftSide() {
     return Container(
       color: Colors.black87.withOpacity(0.8),
@@ -110,6 +114,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Right BG:
   Widget _buildRightSide() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 40),
@@ -154,6 +160,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Animated Right side:
   Widget _buildAnimatedTitle() {
     return Column(
       children: [
@@ -221,6 +229,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Login Button
   Widget _buildLoginButton() {
     return ElevatedButton(
       child: Text('Log in'),
@@ -236,6 +246,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Divider line on the Right side
   Widget _buildOrDivider() {
     return Row(
       children: [
@@ -249,6 +261,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+
+// Registeration button
   Widget _buildCreateProfileButton() {
     return OutlinedButton(
       child: Text('CREATE A PROFILE', style: TextStyle(color: Colors.white)),
@@ -266,13 +280,36 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  void _login() async {
+
+
+// Login logic:
+void _login() async {
     if (_formKey.currentState!.validate()) {
-      dynamic result = await _auth.signIn(_email, _password);
-      if (result == null) {
-        setState(() => _error = 'Could not sign in with those credentials');
-      } else {
-        Navigator.pushReplacementNamed(context, '/influencer_profile');
+      setState(() => _error = ''); // Clear any previous errors
+      try {
+        UserModel? result = await _auth.signIn(_email, _password);
+        if (result == null) {
+          setState(() => _error = 'Could not sign in with those credentials');
+          print('Login failed: null result'); // Debug print
+        } else {
+          print('Login successful. User type: ${result.userType}'); // Debug print
+          switch (result.userType) {
+            case 'Influencer':
+              print('Navigating to influencer profile'); // Debug print
+              Navigator.pushReplacementNamed(context, '/influencer_profile');
+              break;
+            case 'Business':
+              print('Navigating to business profile'); // Debug print
+              Navigator.pushReplacementNamed(context, '/business_profile');
+              break;
+            default:
+              setState(() => _error = 'Unknown user type: ${result.userType}');
+              print('Unknown user type: ${result.userType}'); // Debug print
+          }
+        }
+      } catch (e) {
+        setState(() => _error = 'Error during sign in: ${e.toString()}');
+        print('Error during sign in: $e'); // Debug print
       }
     }
   }
